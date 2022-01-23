@@ -168,8 +168,8 @@ exports.newGithubServer = function newGithubServer() {
             token = unescape(token)
 
             await doGithub()
-            await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
-              return doGithub(v)
+            await Promise.all(Object.values(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP).map(v => {
+              return doGithub(v.repo)
             }))
 
             async function doGithub(repo='Superalgos') {
