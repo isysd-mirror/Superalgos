@@ -1010,25 +1010,27 @@ exports.newHttpInterface = function newHttpInterface() {
 
                                 checkout()
 
+                                function errorResp (e) {
+                                    error = e
+                                    console.error(error)
+                                    let docs = {
+                                        project: 'Foundations',
+                                        category: 'Topic',
+                                        type: 'Switching Branches - Current Branch Not Changed',
+                                        anchor: undefined,
+                                        placeholder: {}
+                                    }
+
+                                    respondWithDocsObject(docs, error)
+                                }
+
+
                                 async function checkout() {
                                     const { lookpath } = SA.nodeModules.lookpath
                                     const gitpath = await lookpath('git');
                                     if (gitpath === undefined) {
                                         console.log('[ERROR] `git` not installed.')
                                     } else {
-                                        function errorResp (e) {
-                                            error = e
-                                            console.error(error)
-                                            let docs = {
-                                                project: 'Foundations',
-                                                category: 'Topic',
-                                                type: 'Switching Branches - Current Branch Not Changed',
-                                                anchor: undefined,
-                                                placeholder: {}
-                                            }
-
-                                            respondWithDocsObject(docs, error)
-                                        }
                                         await doGit().catch(errorResp)
                                         console.log(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values)
                                         await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
