@@ -1016,11 +1016,8 @@ exports.newHttpInterface = function newHttpInterface() {
                                     if (gitpath === undefined) {
                                         console.log('[ERROR] `git` not installed.')
                                     } else {
-                                        await doGit()
-                                        await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
-                                          console.log(v)
-                                          return doGit(v)
-                                        })).catch(error => {
+                                        function errorResp (e) {
+                                            error = e
                                             console.error(error)
                                             let docs = {
                                                 project: 'Foundations',
@@ -1031,7 +1028,12 @@ exports.newHttpInterface = function newHttpInterface() {
                                             }
 
                                             respondWithDocsObject(docs, error)
-                                        })
+                                        }
+                                        await doGit().catch(errorResp)
+                                        await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
+                                            console.log(v)
+                                            return doGit(v)
+                                        })).catch(errorResp)
 
                                         if (error === undefined) {
                                             // Run node setup to prepare instance for branch change
@@ -1039,15 +1041,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                             // Return to UI that Branch is successfully changed
                                             SA.projects.foundations.utilities.httpResponses.respondWithContent(JSON.stringify(global.DEFAULT_OK_RESPONSE), httpResponse)
                                         } else {
-                                            let docs = {
-                                                project: 'Foundations',
-                                                category: 'Topic',
-                                                type: 'Switching Branches - Current Branch Not Changed',
-                                                anchor: undefined,
-                                                placeholder: {}
-                                            }
-
-                                            respondWithDocsObject(docs, error)
+                                            errorResp(error)
                                         }
                                     }
                                 }
