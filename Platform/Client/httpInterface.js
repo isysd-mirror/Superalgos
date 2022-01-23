@@ -1032,11 +1032,11 @@ exports.newHttpInterface = function newHttpInterface() {
                                         console.log('[ERROR] `git` not installed.')
                                     } else {
                                         await doGit().catch(errorResp)
-                                        console.log(SA.nodeModules.process)
-                                        console.log(SA.nodeModules.process.env)
-                                        console.log(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP)
-                                        console.log(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values)
-                                        await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
+                                        console.log(process)
+                                        console.log(process.env)
+                                        console.log(process.env.PROJECT_PLUGIN_MAP)
+                                        console.log(process.env.PROJECT_PLUGIN_MAP.values)
+                                        await Promise.all(process.env.PROJECT_PLUGIN_MAP.values.map(v => {
                                             console.log(v)
                                             return doGit(v)
                                         })).catch(errorResp)
