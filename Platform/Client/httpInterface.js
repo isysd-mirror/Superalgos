@@ -1008,7 +1008,22 @@ exports.newHttpInterface = function newHttpInterface() {
                                 const currentBranch = unescape(requestPath[3])
                                 let error
 
-                                checkout()
+                                checkout().catch(errorResp)
+
+                                function errorResp (e) {
+                                    error = e
+                                    console.error(error)
+                                    let docs = {
+                                        project: 'Foundations',
+                                        category: 'Topic',
+                                        type: 'Switching Branches - Current Branch Not Changed',
+                                        anchor: undefined,
+                                        placeholder: {}
+                                    }
+
+                                    respondWithDocsObject(docs, error)
+                                }
+
 
                                 async function checkout() {
                                     const { lookpath } = SA.nodeModules.lookpath
@@ -1016,7 +1031,14 @@ exports.newHttpInterface = function newHttpInterface() {
                                     if (gitpath === undefined) {
                                         console.log('[ERROR] `git` not installed.')
                                     } else {
-                                        await doGit()
+                                        await doGit().catch(errorResp)
+                                        console.log(global.env.PROJECT_PLUGIN_MAP)
+                                        await Promise.all(Object.values(global.env.PROJECT_PLUGIN_MAP).map(v => {
+                                            console.log(v)
+                                            console.log(v.dir)
+                                            console.log(v.repo)
+                                            return doGit(v.dir, v.repo)
+                                        })).catch(errorResp)
 
                                         if (error === undefined) {
                                             // Run node setup to prepare instance for branch change
@@ -1024,32 +1046,29 @@ exports.newHttpInterface = function newHttpInterface() {
                                             // Return to UI that Branch is successfully changed
                                             SA.projects.foundations.utilities.httpResponses.respondWithContent(JSON.stringify(global.DEFAULT_OK_RESPONSE), httpResponse)
                                         } else {
-                                            let docs = {
-                                                project: 'Foundations',
-                                                category: 'Topic',
-                                                type: 'Switching Branches - Current Branch Not Changed',
-                                                anchor: undefined,
-                                                placeholder: {}
-                                            }
-
-                                            respondWithDocsObject(docs, error)
+                                            errorResp(error)
                                         }
                                     }
                                 }
 
-                                async function doGit() {
+                                async function doGit(dir, repo='Superalgos') {
                                     const simpleGit = SA.nodeModules.simpleGit
                                     const options = {
-                                        baseDir: process.cwd(),
                                         binary: 'git',
                                         maxConcurrentProcesses: 6,
                                     }
+                                    // main app repo should be the working directory
+                                    if (repo === 'Superalgos') options.baseDir = dir || process.cwd()
+                                    // if repo is not main app repo, assume it is a plugin, in ./Plugins.
+                                    else options.baseDir = SA.nodeModules.path.join(process.cwd(), 'Plugins', dir)
+                                    console.log(options.baseDir)
                                     const git = simpleGit(options)
                                     try {
-                                        await git.checkout(currentBranch)
+                                        await git.checkout(currentBranch).catch(errorResp)
 
                                         // Check to see it main repo has been set as upstream
-                                        let remotes = await git.getRemotes();
+                                        let remotes = await git.getRemotes().catch(errorResp);
+                                        console.log(remotes)
                                         let isUpstreamSet
                                         for (let remote in remotes) {
                                             if (remotes[remote].name === 'upstream') {
@@ -1059,14 +1078,17 @@ exports.newHttpInterface = function newHttpInterface() {
                                             }
                                         }
                                         // If upstream has not been set. Set it now
+                                        console.log(isUpstreamSet)
                                         if (isUpstreamSet === false) {
-                                            await git.addRemote('upstream', 'https://github.com/Superalgos/Superalgos');
+                                            console.log(`https://github.com/Superalgos/${repo}`)
+                                            await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`).catch(errorResp);
                                         }
+                                        console.log(currentBranch)
                                         // Pull branch from main repo
-                                        await git.pull('upstream', currentBranch);
+                                        await git.pull('upstream', currentBranch).catch(errorResp);
                                         // Reset branch to match main repo
                                         let upstreamLocation = `upstream/${currentBranch}`
-                                        await git.reset('hard', [upstreamLocation])
+                                        await git.reset('hard', [upstreamLocation]).catch(errorResp)
 
                                     } catch (err) {
                                         console.log('[ERROR] Error changing current branch to ' + currentBranch)
@@ -1481,7 +1503,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                             })
 
                                             const repo = 'Superalgos'
-                                            const owner = 'Superalgos'
+                                            const owner = 'Governance-Plugins'
                                             const head = username + ':' + contributionsBranch
                                             //const base = currentBranch
                                             let base = undefined
@@ -1491,7 +1513,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                                 base = currentBranch
                                             }
                                             const title = 'Governance: ' + mess
-                                            const path = 'Projects/Governance/Plugins/User-Profiles/' + username + '.json';
+                                            const path = 'Plugins/Governance/User-Profiles/' + username + '.json';
 
                                             const sha = await getSHA(path);
 
@@ -2047,7 +2069,8 @@ exports.newHttpInterface = function newHttpInterface() {
                             let project = requestPath[2]
                             let folder = requestPath[3]
                             let fileName = requestPath[4]
-                            let filePath = global.env.PATH_TO_PROJECTS + '/' + project + '/Plugins/' + folder
+                            let pluginName = global.env.PROJECT_PLUGIN_MAP[project] || project
+                            let filePath = global.env.PATH_TO_PLUGINS + '/' + pluginName + '/' + folder
                             let fileContent = JSON.stringify(plugin, undefined, 4)
                             const fs = SA.nodeModules.fs
                             fs.writeFileSync(filePath + '/' + fileName + '.json', fileContent)
@@ -2097,7 +2120,8 @@ exports.newHttpInterface = function newHttpInterface() {
                         readPluginWorkspaces()
 
                         function readPluginWorkspaces() {
-                            let dirPath = global.env.PATH_TO_PROJECTS + '/' + project + '/Plugins/Workspaces'
+                            let pluginName = global.env.PROJECT_PLUGIN_MAP[project] || project
+                            let dirPath = global.env.PATH_TO_PLUGINS + '/' + pluginName + '/Workspaces'
                             try {
                                 let fs = SA.nodeModules.fs
                                 fs.readdir(dirPath, onDirRead)
