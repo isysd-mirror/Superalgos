@@ -169,7 +169,7 @@ exports.newGithubServer = function newGithubServer() {
 
             await doGithub()
             await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
-              await doGithub(v)
+              return doGithub(v)
             }))
 
             async function doGithub(repo='Superalgos') {
