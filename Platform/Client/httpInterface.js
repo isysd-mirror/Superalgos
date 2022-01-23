@@ -1030,6 +1030,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                             respondWithDocsObject(docs, error)
                                         }
                                         await doGit().catch(errorResp)
+                                        console.log(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values)
                                         await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
                                             console.log(v)
                                             return doGit(v)
@@ -1059,10 +1060,11 @@ exports.newHttpInterface = function newHttpInterface() {
                                     console.log(options.baseDir)
                                     const git = simpleGit(options)
                                     try {
-                                        await git.checkout(currentBranch)
+                                        await git.checkout(currentBranch).catch(errorResp)
 
                                         // Check to see it main repo has been set as upstream
-                                        let remotes = await git.getRemotes();
+                                        let remotes = await git.getRemotes().catch(errorResp);
+                                        console.log(remotes)
                                         let isUpstreamSet
                                         for (let remote in remotes) {
                                             if (remotes[remote].name === 'upstream') {
@@ -1073,13 +1075,13 @@ exports.newHttpInterface = function newHttpInterface() {
                                         }
                                         // If upstream has not been set. Set it now
                                         if (isUpstreamSet === false) {
-                                            await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`);
+                                            await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`).catch(errorResp);
                                         }
                                         // Pull branch from main repo
-                                        await git.pull('upstream', currentBranch);
+                                        await git.pull('upstream', currentBranch).catch(errorResp);
                                         // Reset branch to match main repo
                                         let upstreamLocation = `upstream/${currentBranch}`
-                                        await git.reset('hard', [upstreamLocation])
+                                        await git.reset('hard', [upstreamLocation]).catch(errorResp)
 
                                     } catch (err) {
                                         console.log('[ERROR] Error changing current branch to ' + currentBranch)
