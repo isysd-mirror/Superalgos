@@ -1018,6 +1018,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                     } else {
                                         await doGit()
                                         await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
+                                          console.log(v)
                                           return doGit(v)
                                         }))
 
@@ -1050,6 +1051,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                     if (repo === 'Superalgos') options.baseDir = process.cwd()
                                     // if repo is not main app repo, assume it is a plugin, in ./Plugins.
                                     else options.baseDir = SA.nodeModules.path.join(process.cwd(), 'Plugins', repo)
+                                    console.log(options.baseDir)
                                     const git = simpleGit(options)
                                     try {
                                         await git.checkout(currentBranch)
