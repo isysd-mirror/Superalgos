@@ -8,14 +8,10 @@ exports.newPluginsUtilitiesPlugins = function () {
     return thisObject
 
     async function getPluginFileNames(project, folder) {
-        console.log(project)
 
         return new Promise((resolve, reject) => {
-            console.log(global.env.PROJECT_PLUGIN_MAP[project])
             let pluginName = global.env.PROJECT_PLUGIN_MAP[project].dir || project
-            console.log(pluginName)
             let path = global.env.PATH_TO_PLUGINS + '/' + pluginName + '/' + folder
-            console.log(path)
 
             SA.nodeModules.fs.readdir(path, (err, files) => {
                 if (err) {
@@ -31,13 +27,9 @@ exports.newPluginsUtilitiesPlugins = function () {
     }
 
     async function getPluginFileContent(project, folder, fileName) {
-        console.log(project)
         return new Promise((resolve, reject) => {
-            console.log(global.env.PROJECT_PLUGIN_MAP[project])
             let pluginName = global.env.PROJECT_PLUGIN_MAP[project].dir || project
-            console.log(pluginName)
             let path = global.env.PATH_TO_PLUGINS + '/' + pluginName + '/' + folder + '/' + fileName
-            console.log(path)
 
             SA.nodeModules.fs.readFile(path, onFileRead)
 
