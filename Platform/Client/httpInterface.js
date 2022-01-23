@@ -1035,7 +1035,9 @@ exports.newHttpInterface = function newHttpInterface() {
                                         console.log(global.env.PROJECT_PLUGIN_MAP)
                                         await Promise.all(Object.values(global.env.PROJECT_PLUGIN_MAP).map(v => {
                                             console.log(v)
-                                            return doGit(v)
+                                            console.log(v.dir)
+                                            console.log(v.repo)
+                                            return doGit(v.dir, v.repo)
                                         })).catch(errorResp)
 
                                         if (error === undefined) {
@@ -1049,16 +1051,16 @@ exports.newHttpInterface = function newHttpInterface() {
                                     }
                                 }
 
-                                async function doGit(repo='Superalgos') {
+                                async function doGit(dir, repo='Superalgos') {
                                     const simpleGit = SA.nodeModules.simpleGit
                                     const options = {
                                         binary: 'git',
                                         maxConcurrentProcesses: 6,
                                     }
                                     // main app repo should be the working directory
-                                    if (repo === 'Superalgos') options.baseDir = process.cwd()
+                                    if (repo === 'Superalgos') options.baseDir = dir || process.cwd()
                                     // if repo is not main app repo, assume it is a plugin, in ./Plugins.
-                                    else options.baseDir = SA.nodeModules.path.join(process.cwd(), 'Plugins', repo)
+                                    else options.baseDir = SA.nodeModules.path.join(process.cwd(), 'Plugins', dir)
                                     console.log(options.baseDir)
                                     const git = simpleGit(options)
                                     try {
