@@ -1008,7 +1008,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                 const currentBranch = unescape(requestPath[3])
                                 let error
 
-                                checkout()
+                                checkout().catch(errorResp)
 
                                 function errorResp (e) {
                                     error = e
@@ -1076,9 +1076,11 @@ exports.newHttpInterface = function newHttpInterface() {
                                             }
                                         }
                                         // If upstream has not been set. Set it now
+                                        console.log(isUpstreamSet)
                                         if (isUpstreamSet === false) {
                                             await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`).catch(errorResp);
                                         }
+                                        console.log(currentBranch)
                                         // Pull branch from main repo
                                         await git.pull('upstream', currentBranch).catch(errorResp);
                                         // Reset branch to match main repo
