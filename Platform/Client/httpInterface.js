@@ -1032,11 +1032,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                         console.log('[ERROR] `git` not installed.')
                                     } else {
                                         await doGit().catch(errorResp)
-                                        console.log(global.env.PROJECT_PLUGIN_MAP)
                                         await Promise.all(Object.values(global.env.PROJECT_PLUGIN_MAP).map(v => {
-                                            console.log(v)
-                                            console.log(v.dir)
-                                            console.log(v.repo)
                                             return doGit(v.dir, v.repo)
                                         })).catch(errorResp)
 
@@ -1061,14 +1057,12 @@ exports.newHttpInterface = function newHttpInterface() {
                                     if (repo === 'Superalgos') options.baseDir = dir || process.cwd()
                                     // if repo is not main app repo, assume it is a plugin, in ./Plugins.
                                     else options.baseDir = SA.nodeModules.path.join(process.cwd(), 'Plugins', dir)
-                                    console.log(options.baseDir)
                                     const git = simpleGit(options)
                                     try {
                                         await git.checkout(currentBranch).catch(errorResp)
 
                                         // Check to see it main repo has been set as upstream
                                         let remotes = await git.getRemotes().catch(errorResp);
-                                        console.log(remotes)
                                         let isUpstreamSet
                                         for (let remote in remotes) {
                                             if (remotes[remote].name === 'upstream') {
@@ -1078,12 +1072,9 @@ exports.newHttpInterface = function newHttpInterface() {
                                             }
                                         }
                                         // If upstream has not been set. Set it now
-                                        console.log(isUpstreamSet)
                                         if (isUpstreamSet === false) {
-                                            console.log(`https://github.com/Superalgos/${repo}`)
                                             await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`).catch(errorResp);
                                         }
-                                        console.log(currentBranch)
                                         // Pull branch from main repo
                                         await git.pull('upstream', currentBranch).catch(errorResp);
                                         // Reset branch to match main repo
