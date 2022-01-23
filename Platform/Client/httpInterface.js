@@ -1080,10 +1080,8 @@ exports.newHttpInterface = function newHttpInterface() {
                                         // If upstream has not been set. Set it now
                                         console.log(isUpstreamSet)
                                         if (isUpstreamSet === false) {
-                                            console.log(repo)
-                                            console.log(global.env.PROJECT_PLUGIN_MAP[repo])
-                                            console.log(`https://github.com/Superalgos/${global.env.PROJECT_PLUGIN_MAP[repo].repo}`)
-                                            await git.addRemote('upstream', `https://github.com/Superalgos/${global.env.PROJECT_PLUGIN_MAP[repo].repo}`).catch(errorResp);
+                                            console.log(`https://github.com/Superalgos/${repo}`)
+                                            await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`).catch(errorResp);
                                         }
                                         console.log(currentBranch)
                                         // Pull branch from main repo
