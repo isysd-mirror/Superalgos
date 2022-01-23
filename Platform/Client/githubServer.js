@@ -168,9 +168,9 @@ exports.newGithubServer = function newGithubServer() {
             token = unescape(token)
 
             await doGithub()
-            SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.foreach(v => {
+            await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
               await doGithub(v)
-            })
+            }))
 
             async function doGithub(repo='Superalgos') {
                 try {

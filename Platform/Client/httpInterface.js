@@ -1017,9 +1017,9 @@ exports.newHttpInterface = function newHttpInterface() {
                                         console.log('[ERROR] `git` not installed.')
                                     } else {
                                         await doGit()
-                                        SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.foreach(v => {
+                                        await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
                                           await doGit(v)
-                                        })
+                                        }))
 
                                         if (error === undefined) {
                                             // Run node setup to prepare instance for branch change
