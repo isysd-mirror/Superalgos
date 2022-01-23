@@ -1033,7 +1033,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                     } else {
                                         await doGit().catch(errorResp)
                                         console.log(global.env.PROJECT_PLUGIN_MAP)
-                                        await Promise.all(global.env.PROJECT_PLUGIN_MAP.values.map(v => {
+                                        await Promise.all(Object(global.env.PROJECT_PLUGIN_MAP).values.map(v => {
                                             console.log(v)
                                             return doGit(v)
                                         })).catch(errorResp)
