@@ -1018,7 +1018,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                     } else {
                                         await doGit()
                                         await Promise.all(SA.nodeModules.process.env.PROJECT_PLUGIN_MAP.values.map(v => {
-                                          await doGit(v)
+                                          return doGit(v)
                                         }))
 
                                         if (error === undefined) {
