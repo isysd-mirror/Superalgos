@@ -1061,20 +1061,6 @@ exports.newHttpInterface = function newHttpInterface() {
                                     try {
                                         await git.checkout(currentBranch).catch(errorResp)
 
-                                        // Check to see it main repo has been set as upstream
-                                        let remotes = await git.getRemotes().catch(errorResp);
-                                        let isUpstreamSet
-                                        for (let remote in remotes) {
-                                            if (remotes[remote].name === 'upstream') {
-                                                isUpstreamSet = true
-                                            } else {
-                                                isUpstreamSet = false
-                                            }
-                                        }
-                                        // If upstream has not been set. Set it now
-                                        if (isUpstreamSet === false) {
-                                            await git.addRemote('upstream', `https://github.com/Superalgos/${repo}`).catch(errorResp);
-                                        }
                                         // Pull branch from main repo
                                         await git.pull('upstream', currentBranch).catch(errorResp);
                                         // Reset branch to match main repo
@@ -1410,6 +1396,7 @@ exports.newHttpInterface = function newHttpInterface() {
                                 case 'createGithubFork': {
 
                                     let serverResponse = await PL.servers.GITHUB_SERVER.createGithubFork(
+                                        params.username,
                                         params.token
                                     )
 
@@ -1449,17 +1436,20 @@ exports.newHttpInterface = function newHttpInterface() {
                                         let error
 
                                         await checkFork()
+                                        await checkFork('Governance-Plugins')
                                         await updateUser()
 
-                                        async function checkFork() {
+                                        async function checkFork(repo='Superalgos') {
                                             let serverResponse = await PL.servers.GITHUB_SERVER.createGithubFork(
-                                                params.token
+                                                username,
+                                                token,
+                                                repo
                                             )
 
                                             SA.projects.foundations.utilities.httpResponses.respondWithContent(JSON.stringify(serverResponse), httpResponse)
 
                                             if (error != undefined) {
-                                                console.log('[ERROR] httpInterface -> Gov -> createFork -> You already have a fork. Good for you!')
+                                                console.log(`[ERROR] httpInterface -> Gov -> createFork -> You already have a ${repo} fork. Good for you!`)
                                             }
                                         }
 
@@ -1493,8 +1483,8 @@ exports.newHttpInterface = function newHttpInterface() {
                                                 userAgent: 'Superalgos ' + SA.version
                                             })
 
-                                            const repo = 'Superalgos'
-                                            const owner = 'Governance-Plugins'
+                                            const repo = 'Governance-Plugins'
+                                            const owner = 'Superalgos'
                                             const head = username + ':' + contributionsBranch
                                             //const base = currentBranch
                                             let base = undefined
